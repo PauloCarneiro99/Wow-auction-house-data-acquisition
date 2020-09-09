@@ -1,6 +1,9 @@
 const axios = require('axios')
-const fs = require('fs')
 const moment = require('moment')
+const AWS = require('aws-sdk');
+
+AWS.config.update({ region: 'us-east-1' })
+const s3 = new AWS.S3()
 require("dotenv").config()
 
 const credentials = {
@@ -50,15 +53,27 @@ const getAuctionHouse = async (realmId) => {
 }
 
 
-const main = async () => {
+module.exports.handler = async (event, context, callback) => {
     const realmList = await getRealmsInfo()
-    const filename = `${realmName}_${moment().format('YYYY_MM_DD_H')}`
-    const realmName = 'Proudmoore'
+    const realmName = event.realmName || 'Proudmoore'
+    const filename = `${realmName}/${moment().format('YYYY_MM_DD_H')}.json`
     const realmId = findRealmId(realmList, realmName)
 
     console.log(`Realm id ${realmId}`)
     const auctionHouseData = await getAuctionHouse(realmId)
-    fs.writeFileSync(`${filename}.json`, JSON.stringify(auctionHouseData))
-}
 
-main()
+    if (auctionHouseData) {
+        console.log(`Uploading ${auctionHouseData.length} records to s3`)
+        await s3.upload(
+            {
+                Bucket: `data-acquisition-${process.env.stage}`,
+                Key: filename,
+                Body: JSON.stringify(auctionHouseData)
+            }
+        ).promise()
+    } else {
+        console.log('Failed to fetch data from this realm')
+    }
+
+    callback(null)
+}

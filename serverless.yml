@@ -1,0 +1,33 @@
+service: data-acquisition
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  profile: paulo
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:*"
+      Resource:
+        - arn:aws:s3:::${self:custom.s3Bucket}
+        - arn:aws:s3:::${self:custom.s3Bucket}/*
+
+custom:
+  stage: ${opt:stage, dev}
+  s3Bucket: data-acquisition-${self:custom.stage}
+
+resources:
+  Resources:
+    DataLake:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.s3Bucket}
+
+functions:
+    acquisition:
+        handler: index.handler
+        timeout: 300
+        memorySize: 192
+        environment:
+          stage: ${self:custom.stage}
