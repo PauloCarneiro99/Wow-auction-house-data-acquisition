@@ -26,7 +26,7 @@ resources:
 
 functions:
     acquisition:
-        handler: index.handler
+        handler: build/index.acquisition
         timeout: 300
         memorySize: 192
         environment:

@@ -3,16 +3,22 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "author": "",
+  "author": "Paulo Carneiro",
   "license": "ISC",
+  "scripts": {
+    "compile": "tsc",
+    "deploy": "tsc && sls deploy --stage dev --verbose"
+  },
   "dependencies": {
-    "axios": "^0.20.0",
+    "axios": "^0.19.0",
     "dotenv": "^8.2.0",
     "moment": "^2.27.0",
-    "serverless": "^1.81.1",
     "simple-oauth2": "^2.2.1"
   },
   "devDependencies": {
-    "aws-sdk": "^2.749.0"
+    "aws-sdk": "^2.749.0",
+    "fs": "0.0.1-security",
+    "serverless": "^1.81.1",
+    "typescript": "^4.0.2"
   }
 }
