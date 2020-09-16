@@ -1,4 +1,4 @@
-import * as AWS from 'aws-sdk'
+import { S3, config } from 'aws-sdk'
 import * as moment from 'moment'
 import axios from 'axios'
 import Auth from '../helpers/index'
@@ -7,20 +7,9 @@ import { writeFile } from 'fs'
 require("dotenv").config()
 
 
-AWS.config.update({ region: 'us-east-1' })
-const s3 = new AWS.S3()
-
-const credentials = {
-    client: {
-        id: process.env.BNET_ID,
-        secret: process.env.BNET_SECRET
-    },
-    auth: {
-        tokenHost: "https://us.battle.net"
-    }
-}
-
-const auth = new Auth(credentials)
+config.update({ region: 'us-east-1' })
+const s3 = new S3()
+const auth = new Auth()
 
 const getRealmsInfo = async () => {
     const token = await auth.getToken()
@@ -49,7 +38,6 @@ const getAuctionHouse = async (realmId) => {
 
 
 export default async (event, context, callback) => {
-    console.log(process.env)
     const realmList = await getRealmsInfo()
     const realmName = event.realmName || 'Proudmoore'
     const filename = `${realmName}/${moment().format('YYYY_MM_DD_H')}.json`

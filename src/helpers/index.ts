@@ -1,7 +1,16 @@
 export default class Auth {
     oauth2;
 
-    constructor(credentials) {
+    constructor() {
+        var credentials = {
+            client: {
+                id: process.env.BNET_ID,
+                secret: process.env.BNET_SECRET
+            },
+            auth: {
+                tokenHost: "https://us.battle.net"
+            }
+        }
         this.oauth2 = require("simple-oauth2").create(credentials)
     }
 
