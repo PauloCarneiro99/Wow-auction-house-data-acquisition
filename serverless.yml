@@ -1,4 +1,4 @@
-service: data-acquisition
+service: wow-project
 
 provider:
   name: aws
@@ -12,10 +12,19 @@ provider:
       Resource:
         - arn:aws:s3:::${self:custom.s3Bucket}
         - arn:aws:s3:::${self:custom.s3Bucket}/*
+    - Effect: "Allow"
+      Action:
+        - "lambda:InvokeFunction"
+      Resource:
+        - "*"
 
 custom:
   stage: ${opt:stage, dev}
   s3Bucket: data-acquisition-${self:custom.stage}
+  enabler:
+    prod: true
+    dev: false
+    default: false
 
 resources:
   Resources:
@@ -26,8 +35,19 @@ resources:
 
 functions:
     acquisition:
-        handler: index.handler
+        handler: build/index.acquisition
         timeout: 300
         memorySize: 192
         environment:
           stage: ${self:custom.stage}
+
+    ignition:
+        handler: build/index.ignition
+        timeout: 900
+        memorySize: 192
+        environment:
+          stage: ${self:custom.stage}
+        events:
+          - schedule:
+              rate: cron(0 0 * * ? *)
+              enabled: ${self:custom.enabler.${self:custom.stage}, self:custom.enabler.default}
