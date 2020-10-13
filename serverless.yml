@@ -51,3 +51,10 @@ functions:
           - schedule:
               rate: cron(0 0 * * ? *)
               enabled: ${self:custom.enabler.${self:custom.stage}, self:custom.enabler.default}
+
+    anomalyDetection:
+      handler: build/index.anomalyDetection
+      timeout: 300
+      memorySize: 192
+      environment:
+        stage: ${self:custom.stage}
