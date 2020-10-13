@@ -18,20 +18,26 @@ provider:
       Resource:
         - "*"
 
+plugins:
+  - serverless-s3-remover
+
 custom:
   stage: ${opt:stage, dev}
   s3Bucket: data-acquisition-${self:custom.stage}
+  remover:
+    buckets:
+      - ${self:custom.s3Bucket}
   enabler:
     prod: true
     dev: false
     default: false
 
-resources:
-  Resources:
-    DataLake:
-      Type: AWS::S3::Bucket
-      Properties:
-        BucketName: ${self:custom.s3Bucket}
+# resources:
+#   Resources:
+#     DataLake:
+#       Type: AWS::S3::Bucket
+#       Properties:
+#         BucketName: ${self:custom.s3Bucket}
 
 functions:
     acquisition:
@@ -40,6 +46,12 @@ functions:
         memorySize: 192
         environment:
           stage: ${self:custom.stage}
+        events:
+          - schedule:
+              rate: cron(0 0 * * ? *)
+              enabled: ${self:custom.enabler.${self:custom.stage}, self:custom.enabler.default}
+              input:
+                realmName: Proudmoore
 
     ignition:
         handler: build/index.ignition
@@ -50,7 +62,7 @@ functions:
         events:
           - schedule:
               rate: cron(0 0 * * ? *)
-              enabled: ${self:custom.enabler.${self:custom.stage}, self:custom.enabler.default}
+              enabled: false
 
     anomalyDetection:
       handler: build/index.anomalyDetection
@@ -58,3 +70,7 @@ functions:
       memorySize: 192
       environment:
         stage: ${self:custom.stage}
+      events:
+        - s3:
+            bucket: ${self:custom.s3Bucket}
+            event: s3:ObjectCreated:*

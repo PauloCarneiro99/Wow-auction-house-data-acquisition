@@ -2,11 +2,40 @@ import Auth from '../helpers/index'
 import axios from 'axios'
 import { readFile } from 'fs'
 import * as groupBy from 'group-by'
+import * as nodemailer from 'nodemailer'
+import { S3 } from 'aws-sdk'
 
-// const groupBy = require('group-by');
+require("dotenv").config()
 
 const auth = new Auth()
 const deals = []
+
+
+var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_SENDER,
+        pass: process.env.EMAIL_PASSWORD
+    }
+});
+
+const sendEmail = (subject, text) => {
+    var mailOptions = {
+        from: process.env.EMAIL_SENDER,
+        to: process.env.EMAIL_RECEIVER,
+        subject: subject,
+        text: text
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    });
+}
+
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -72,10 +101,38 @@ export default async (event, context, callback) => {
             }
         )
     } else {
-        throw new Error('Not implemented yet')
+        console.log('EVENT ', JSON.stringify(event))
+        const s3 = new S3()
+        const bucket = event.Records[0].s3.bucket.name;
+        const key = decodeURIComponent(event.Records[0].s3.object.key.replace(/\+/g, " "));
+        try {
+            const params = {
+                Bucket: bucket,
+                Key: key
+            };
+            var data = await s3.getObject(params).promise();
+            console.log(data[0])
+            const groupedData = await groupUp(data)
+            for (let record of groupedData) {
+                try {
+                    if (!record.value) continue
+                    await processAuction(record)
+                    await sleep(100);
+                } catch (e) {
+                    console.log(e)
+                    break
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            return;
+        }
     }
+
 
     deals.sort((a, b) => (a.profit > b.profit) ? -1 : 1)
     console.log('Deals are ', deals)
+    if (deals) sendEmail('Great deals at World of Warcraft', JSON.stringify(deals))
+    else console.log('No deals today')
 }
 
