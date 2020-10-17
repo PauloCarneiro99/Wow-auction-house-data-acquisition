@@ -50,6 +50,7 @@ const getItemInfo = async (itemId: string) => {
         return { sell_price, name }
     } catch (e) {
         console.error(e)
+        return { sell_price: undefined, name: undefined }
     }
 }
 
@@ -124,13 +125,11 @@ export default async (event, context, callback) => {
                     await processAuction(record)
                     await sleep(100);
                 } catch (e) {
-                    console.log(e)
-                    break
+                    console.error(e)
                 }
             }
-        } catch (error) {
-            console.error(error);
-            return;
+        } catch (e) {
+            console.error(e);
         }
     }
 
