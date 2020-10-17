@@ -1,0 +1,38 @@
+{
+    "Records": [
+        {
+            "eventVersion": "2.1",
+            "eventSource": "aws:s3",
+            "awsRegion": "us-east-1",
+            "eventTime": "2020-10-16T12:12:36.735Z",
+            "eventName": "ObjectCreated:CompleteMultipartUpload",
+            "userIdentity": {
+                "principalId": "AWS:AROA4FBHHUVNWQ5EO6MOC:wow-project-dev-acquisition"
+            },
+            "requestParameters": {
+                "sourceIPAddress": "18.234.218.198"
+            },
+            "responseElements": {
+                "x-amz-request-id": "6658498D107C36DF",
+                "x-amz-id-2": "I4nvUL6rtH09jHiMX2gFDssGaHjqwi1u4OxaCKosqVJnCiSZmrY02u6FOLfePwCsl7YarpShnTDQPhHx5utNzNFe2Knb+czq"
+            },
+            "s3": {
+                "s3SchemaVersion": "1.0",
+                "configurationId": "dd46e2d0-9743-450f-a273-798acdba0ce6",
+                "bucket": {
+                    "name": "data-acquisition-dev",
+                    "ownerIdentity": {
+                        "principalId": "ASSTCIYCN7DVQ"
+                    },
+                    "arn": "arn:aws:s3:::data-acquisition-dev"
+                },
+                "object": {
+                    "key": "Proudmoore/2020_10_16_12.json",
+                    "size": 14455551,
+                    "eTag": "cfb1ba22c4e7a018c3760510bdc5d0e0-3",
+                    "sequencer": "005F898E40A86245E0"
+                }
+            }
+        }
+    ]
+}

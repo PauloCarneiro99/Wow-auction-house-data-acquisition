@@ -101,7 +101,6 @@ export default async (event, context, callback) => {
             }
         )
     } else {
-        console.log('EVENT ', JSON.stringify(event))
         const s3 = new S3()
         const bucket = event.Records[0].s3.bucket.name;
         const key = decodeURIComponent(event.Records[0].s3.object.key.replace(/\+/g, " "));
@@ -110,9 +109,9 @@ export default async (event, context, callback) => {
                 Bucket: bucket,
                 Key: key
             };
-            var data = await s3.getObject(params).promise();
-            console.log(data[0])
-            const groupedData = await groupUp(data)
+            const data = await s3.getObject(params).promise()
+            const fileContent = JSON.parse(String(data.Body))
+            const groupedData = await groupUp(fileContent)
             for (let record of groupedData) {
                 try {
                     if (!record.value) continue
@@ -132,7 +131,7 @@ export default async (event, context, callback) => {
 
     deals.sort((a, b) => (a.profit > b.profit) ? -1 : 1)
     console.log('Deals are ', deals)
-    if (deals) sendEmail('Great deals at World of Warcraft', JSON.stringify(deals))
+    if (deals.length > 0) sendEmail('Great deals at World of Warcraft', JSON.stringify(deals))
     else console.log('No deals today')
 }
 
