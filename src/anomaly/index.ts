@@ -60,7 +60,7 @@ const processAuction = async ({ value, quantity, id }) => {
         deals.push({
             name,
             quantity,
-            profit: (value - sell_price) * quantity,
+            profit: (sell_price - value) * quantity,
             sell_price,
             value
         })
