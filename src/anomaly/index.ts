@@ -113,6 +113,12 @@ export default async (event, context, callback) => {
             const fileContent = JSON.parse(String(data.Body))
             const groupedData = await groupUp(fileContent)
             for (let record of groupedData) {
+                if (context.getRemainingTimeInMillis() < 20000) {
+                    //here we could just return a state notFinished and add a stepFunction
+                    //to interate over the lambda
+                    console.log('There is no time to try to find new deals today')
+                    break
+                }
                 try {
                     if (!record.value) continue
                     await processAuction(record)
